@@ -6,6 +6,8 @@
 #define QCONTAINER_PRO_LINKERHANDLER_H
 
 #include <set>
+#include <list>
+
 namespace ZhenxiRunTime {
 /**
     * linker 加载 so 回调实现类。

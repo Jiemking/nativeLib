@@ -209,6 +209,7 @@ static void *xdl_read_memory_to_heap_by_section(void *mem, size_t mem_sz, ElfW(S
   return xdl_read_memory_to_heap(mem, mem_sz, (size_t)shdr->sh_offset, shdr->sh_size);
 }
 
+
 static void *xdl_get_memory(void *mem, size_t mem_sz, size_t data_offset, size_t data_len) {
   if (0 == data_len) return NULL;
   if (data_offset >= mem_sz) return NULL;
@@ -921,4 +922,81 @@ int xdl_info(void *handle, int request, void *info) {
   dlinfo->dlpi_phdr = self->dlpi_phdr;
   dlinfo->dlpi_phnum = (size_t)self->dlpi_phnum;
   return 0;
+}
+void xdl_sym_foreach_in_symtab(void *handle, SymForeachCallBack* callback) {
+  if (NULL == handle ) return ;
+
+  xdl_t *self = (xdl_t *)handle;
+
+  // load .symtab only once
+  if (!self->symtab_try_load) {
+    self->symtab_try_load = true;
+    if (0 != xdl_symtab_load(self)) return ;
+  }
+
+  // find symbol
+  if (NULL == self->symtab) return ;
+
+  LOGE("xdl_sym_foreach_in_symtab symtab_cnt size %zu ",self->symtab_cnt)
+  for (size_t i = 0; i < self->symtab_cnt; ++i) {
+    ElfW(Sym) *sym = self->symtab + i;
+    if (!XDL_SYMTAB_IS_EXPORT_SYM(sym->st_shndx)) {
+      SymInfo info;
+      info.addr = (void *)(self->load_bias + sym->st_value);
+      info.sym = self->strtab + sym->st_name;
+      info.symLen = sym->st_size;
+      callback->findSym(&info);
+    }
+  }
+}
+// 遍历动态符号表.dynsym
+void xdl_sym_foreach_in_dynsym(void *handle, SymForeachCallBack* callback) {
+  if (NULL == handle) return;
+
+  xdl_t *self = (xdl_t *)handle;
+
+  if (!self->dynsym_try_load) {
+    self->dynsym_try_load = true;
+    if (0 != xdl_dynsym_load(self)) return;
+  }
+
+  if (NULL == self->dynsym) return;
+
+  // 计算符号表中符号的数量
+  uint32_t sym_cnt = 0;
+  if (self->gnu_hash.buckets_cnt > 0) {
+    for (uint32_t i = 0; i < self->gnu_hash.buckets_cnt; ++i) {
+      uint32_t idx = self->gnu_hash.buckets[i];
+      if (idx < self->gnu_hash.symoffset) continue;
+      while (1) {
+        uint32_t sym_hash = self->gnu_hash.chains[idx - self->gnu_hash.symoffset];
+        ++sym_cnt;
+        if (sym_hash & (uint32_t)1) break;
+        ++idx;
+      }
+    }
+  } else if (self->sysv_hash.buckets_cnt > 0) {
+    for (uint32_t i = 0; i < self->sysv_hash.buckets_cnt; ++i) {
+      for (uint32_t idx = self->sysv_hash.buckets[i]; 0 != idx; idx = self->sysv_hash.chains[idx]) {
+        ++sym_cnt;
+      }
+    }
+  }
+
+  // 遍历符号
+  for (uint32_t i = 0; i < sym_cnt; ++i) {
+    ElfW(Sym) *sym = self->dynsym + i;
+    if (XDL_DYNSYM_IS_EXPORT_SYM(sym->st_shndx)) {
+      SymInfo info;
+      info.addr = (void *)(self->load_bias + sym->st_value);
+      info.sym = (char*)self->dynstr + sym->st_name;
+      info.symLen = sym->st_size;
+      callback->findSym(&info);
+    }
+  }
+}
+
+void xdl_sym_foreach(void *handle,SymForeachCallBack* callback){
+  //xdl_sym_foreach_in_dynsym(handle,callback);
+  xdl_sym_foreach_in_symtab(handle, callback);
 }

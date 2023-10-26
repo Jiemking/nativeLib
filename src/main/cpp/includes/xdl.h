@@ -62,7 +62,27 @@ typedef struct {
 //
 #define XDL_TRY_FORCE_LOAD    0x01
 #define XDL_ALWAYS_FORCE_LOAD 0x02
+struct SymInfo{
+    /**
+     * 函数地址
+     */
+    void* addr;
+    /**
+     * 函数名
+     */
+    char* sym;
+    /**
+     * 函数长度
+     */
+    uint symLen = 0;
+};
+class SymForeachCallBack {
+public:
+    virtual void findSym(SymInfo* info) const = 0;
+protected:
+};
 
+void xdl_sym_foreach(void *handle,SymForeachCallBack* callback);
 //根据 flags 参数值的不同，xdl_open() 的行为会有一些差异：
 //XDL_DEFAULT: 如果动态库已经被加载到内存中了，xdl_open() 不会再使用 dlopen() 加载它。（但依然会返回一个有效的 handle）
 //XDL_TRY_FORCE_LOAD: 如果动态库还没有被加载到内存中，xdl_open() 将尝试使用 dlopen() 加载它。
