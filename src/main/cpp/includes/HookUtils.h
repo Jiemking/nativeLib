@@ -21,6 +21,26 @@
                                    LOGE(#name)     \
                                 } \
 
+#define HOOK_SYM(sym,name) \
+bool is##name = HookUtils::Hooker(sym,\
+                                (void *) new_##name, \
+                                (void **) &orig_##name);                                         \
+                                if(is##name){                                                    \
+                                   LOG(INFO) << #name << "hook sym success !!!!!";     \
+                                } \
+
+
+#define HOOKER(str_sym,name)       \
+void *sym##name = xdl_sym(handle, str_sym, nullptr); \
+if(sym##name == nullptr){ \
+    sym##name = xdl_dsym(handle, str_sym, nullptr); \
+    if( sym##name == nullptr) {           \
+       LOG(ERROR) << #name << "hook sym fail !!!!!"; \
+       return;                             \
+    }                              \
+   \
+} \
+HOOK_SYM(sym##name,name)
 
 class HookUtils {
 public:
