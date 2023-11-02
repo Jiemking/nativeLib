@@ -6,11 +6,7 @@
 
 #include "HookUtils.h"
 
-/**
- * sandhook里面的inlinehook
- * 异常hook的实现
- */
-#include "signhook/include/inline_hook.h"
+
 
 #include "xdl.h"
 #include "logging.h"
@@ -44,23 +40,7 @@ void HookUtils::startBranchTrampoline(){
     dobby_enable_near_branch_trampoline();
 }
 
-bool HookUtils::HookerForSign(void *dysym, void *newrep, void **org){
-    if (dysym == nullptr) {
-        LOG(ERROR) << "dobby hook org == null ";
-        return false;
-    }
-    if (hookedList == nullptr) {
-        hookedList = new list<void *>();
-    }
-    //如果这个地址已经被Hook了 。也有可能返回失败 。dobby 会提示 already been hooked 。
-    for (void *ptr: *hookedList) {
-        if (ptr == dysym) {
-            //如果保存了这个地址,说明之前hook成功过,我们也认为hook成功
-            return true;
-        }
-    }
-    return  SandHook::Inline::InlineHookImpl(dysym, newrep, org);
-}
+
 /**
  * Hook的整体封装,这个方法可以切换别的Hook框架
  * 先尝试用DobbyHook 如果Hook失败的话用InlineHook二次尝试
@@ -93,33 +73,9 @@ bool HookUtils::Hooker(void *dysym, void *newrep, void **org) {
     if (ret) {
         //LOG(ERROR) << "hook utils hook success !" ;
         //将地址添加到已经hook的列表,防止这个地址被多次hook
-        hookedList->push_back(dysym);
-        return true;
-    }
-
-    //如果dobby hook失败了,采用sandhook异常hook进行补救,
-    LOG(ERROR) << "zhenxi runtime inlinehook start sandhook InlineHookImpl  ";
-    ret = SandHook::Inline::InlineHookImpl(dysym, newrep, org);
-    if (ret) {
         PUT_PTR(dysym)
         return true;
     }
-
-    LOG(ERROR)
-            << ">>>>>>>>>>>>>>> sandhook inlinehook hook error,start dobby branch_trampoline hook ";
-    //如果sandhook sign hook 也失败了,我们采用dobby附近插装去hook
-    dobby_enable_near_branch_trampoline();
-    //二次hook
-    ret = DobbyHook(dysym,
-                    reinterpret_cast<dobby_dummy_func_t>(newrep),
-                    reinterpret_cast<dobby_dummy_func_t *>(org)) == RT_SUCCESS;
-    //关闭附近插装
-    dobby_disable_near_branch_trampoline();
-    if (!ret) {
-        LOG(ERROR) << "!!!!!!!!!!!!!!!  HookUtils hook error   ";
-        return false;
-    }
-    PUT_PTR(dysym)
     return ret;
 
 }

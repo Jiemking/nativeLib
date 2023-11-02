@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 #添加内联支持
 enable_language(C ASM)
 
-#sandhook sign hook
-add_subdirectory(signhook)
+
 
 message(STATUS "dobby lib path ->  ${DOBBY_LIB_PATH} ")
 message(STATUS "dobby lib path ->  ${DOBBY_LIB_PATH} ")
@@ -54,7 +53,7 @@ add_library(
 target_link_libraries(
         runtimehook
         dobby #dobby
-        signhook #sandhook sign hook
+
         dlfc
         ${log-lib}
 )
