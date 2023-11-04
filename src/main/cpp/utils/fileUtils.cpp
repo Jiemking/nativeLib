@@ -29,7 +29,7 @@ bool fileUtils::getFiles(const std::string& path, std::vector<std::string>& file
 }
 bool fileUtils::setFilePermissions(const std::string& filePath, std::filesystem::perms permissions) {
     // 检查文件是否存在
-    if (!std::filesystem::exists(filePath)) {
+    if (!isFileExists(filePath)) {
         std::cerr << "File does not exist: " << filePath << std::endl;
         return false;
     }
@@ -351,9 +351,12 @@ bool fileUtils::savefile(const char *savePath, size_t size, size_t start, bool i
 
 
 bool fileUtils::isFileExists(const string& name) {
-    try {
-        return filesystem::exists(name);
-    } catch (...) {
+    // F_OK是检查文件是否存在的标志
+    if (access(name.c_str(), F_OK) == 0) {
+        // 文件存在
+        return true;
+    } else {
+        // 文件不存在或者无法访问
         return false;
     }
 }
