@@ -26,7 +26,7 @@ bool is##name = HookUtils::Hooker(sym,\
                                 (void *) new_##name, \
                                 (void **) &orig_##name);                                         \
                                 if(is##name){                                                    \
-                                   LOG(INFO) << #name << "hook sym success !!!!!";     \
+                                   LOG(INFO) << #name << " hook sym success !!!!!";     \
                                 } \
 
 
@@ -35,7 +35,7 @@ void *sym##name = xdl_sym(handle, str_sym, nullptr); \
 if(sym##name == nullptr){ \
     sym##name = xdl_dsym(handle, str_sym, nullptr); \
     if( sym##name == nullptr) {           \
-       LOG(ERROR) << #name << "hook sym fail !!!!!"; \
+       LOG(ERROR) << #name <<" hook sym fail , "<< #str_sym<< " sym not find !!!!!"; \
        return;                             \
     }                              \
    \
