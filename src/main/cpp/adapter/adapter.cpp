@@ -77,12 +77,12 @@ void ZhenxiRunTime::getExitSignInfo(const std::string& msg,int sign,
     xdl_addr_clean(&cache);
 
     //栈回溯打印,打印被调试线程的pid,打印主线程的tid
-    xunwind_cfi_log(pid,
-                    tid,
-                    context,
-                    TAG,
-                    ANDROID_LOG_ERROR,
-                    TAG);
+//    xunwind_cfi_log(pid,
+//                    tid,
+//                    context,
+//                    TAG,
+//                    ANDROID_LOG_ERROR,
+//                    TAG);
 //    char *errorMsg = xunwind_cfi_get(pid, tid, context, TAG);
 //    if(errorMsg!= nullptr){
 //        LOG(ERROR)<<"error msg \n "<< msg;
