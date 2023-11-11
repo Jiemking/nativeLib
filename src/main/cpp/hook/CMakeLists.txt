@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.4.1)
 enable_language(C ASM)
 
 
-
 message(STATUS "dobby lib path ->  ${DOBBY_LIB_PATH} ")
 message(STATUS "dobby lib path ->  ${DOBBY_LIB_PATH} ")
 message(STATUS "dobby lib path ->  ${DOBBY_LIB_PATH} ")
@@ -34,14 +33,6 @@ add_subdirectory(Dobby dobby.build)
 
 
 
-include_directories(
-        ${HomePath}/external/lsplant/src/main/cpp/include/
-         ${HomePath}/external/nativeLib/src/main/cpp/includes/
-
-
-        ${HomePath}/external/lsplant/src/main/cpp/include/hook/signhook/include/
-)
-
 add_library(
         runtimehook
 
@@ -52,7 +43,7 @@ add_library(
 
 target_link_libraries(
         runtimehook
-        dobby #dobby
+        dobby
 
         dlfc
         ${log-lib}

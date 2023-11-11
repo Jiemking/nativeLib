@@ -4,26 +4,6 @@ cmake_minimum_required(VERSION 3.4.1)
 enable_language(C ASM)
 
 
-
-
-
-
-#native基础类库路径
-include_directories(
-        ./
-        ${HomePath}/external/lsplant/src/main/cpp/include/
-         ${HomePath}/external/nativeLib/src/main/cpp/includes/
-
-        ${HomePath}/container-runtime/src/main/cpp/include/
-)
-
-
-
-
-
-
-
-
 #这个库主要是包含一些常用的工具类
 add_library(
         utils

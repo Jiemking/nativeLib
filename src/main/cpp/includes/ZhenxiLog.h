@@ -7,7 +7,6 @@
 
 
 #define TAG "Zhenxi"
-#define TAG2 "Zhenxi233"
 
 
 #ifdef ZHENXI_BUILD_TYPE_NOLOG

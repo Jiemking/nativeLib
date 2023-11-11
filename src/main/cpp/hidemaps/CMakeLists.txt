@@ -9,14 +9,11 @@ add_library(
         hide_maps_path.cpp
 
 )
+
 target_link_libraries(
         mapshidepath
 
         proc_maps_parser
-)
-target_link_libraries(
-        mapshidepath
-
         ${log-lib}
 )
 
